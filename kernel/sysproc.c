@@ -95,3 +95,15 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+
+uint64
+sys_trace(void)
+{
+  int n;
+  // ? 如何拿到syscall的传参
+  if(argint(0, &n) < 0)
+    return -1;
+  //保存trace函数传入的参数
+  myproc()->trace_mask = n;
+  return 0;
+}
