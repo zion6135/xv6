@@ -6,6 +6,7 @@
 #include "memlayout.h"
 #include "spinlock.h"
 #include "proc.h"
+#include "kernel/sysinfo.h"
 
 uint64
 sys_exit(void)
@@ -105,5 +106,24 @@ sys_trace(void)
     return -1;
   //保存trace函数传入的参数
   myproc()->trace_mask = n;
+  return 0;
+}
+
+uint64
+sys_sysinfo(void)
+{
+  struct sysinfo info;
+  uint64 addr;
+  if(argaddr(0, &addr) < 0)
+    return -1;
+  info.nproc = proc_getnum();
+  info.freemem = getfreememSize();
+  // addr代表的是userspace的内存地址，info处于kernel
+  // copy info(kernel space) to addr(user space)
+  if (copyout(myproc()->pagetable, addr, (char *)&info, sizeof(info)) < 0) {
+      return -1;
+    } else {
+      return 0;
+    }
   return 0;
 }
